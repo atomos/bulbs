@@ -22,7 +22,7 @@ class Graph(BaseGraph):
     """
     The primary interface to Neo4j Server.
 
-    Instantiates the database :class:`~bulbs.neo4jserver.client.Client` object using 
+    Instantiates the database :class:`~bulbs.neo4jserver.client.Client` object using
     the specified Config and sets up proxy objects to the database.
 
     :param config: Optional. Defaults to the default config.
@@ -37,7 +37,7 @@ class Graph(BaseGraph):
     :ivar config: Config object.
     :ivar gremlin: Gremlin object.
     :ivar scripts: GroovyScripts object.
-    
+
     Example:
 
     >>> from bulbs.neo4jserver import Graph
@@ -51,12 +51,12 @@ class Graph(BaseGraph):
     default_index = ExactIndex
 
     def __init__(self, config=None):
-        # What happens if these REST init calls error on Heroku?    
+        # What happens if these REST init calls error on Heroku?
         super(Graph, self).__init__(config)
 
         # Neo4j Server supports Gremlin
         self.gremlin = Gremlin(self.client)
-        self.scripts = self.client.scripts    # for convienience 
+        self.scripts = self.client.scripts    # for convienience
 
         # Cypher; TODO: Cypher Queries library object
         self.cypher = Cypher(self.client)
@@ -72,7 +72,7 @@ class Graph(BaseGraph):
         :type value: str, int, or list
 
         :rtype: Neo4jResponse
-        
+
         """
         return self.client.set_metadata(key, value).one()
 
@@ -87,7 +87,7 @@ class Graph(BaseGraph):
         :type default_value: str, int, or list
 
         :rtype: Neo4jResult
-        
+
         """
         return self.client.get_metadata(key, default_value).one()
 
@@ -99,10 +99,10 @@ class Graph(BaseGraph):
         :type key: str
 
         :rtype: Neo4jResponse
-        
+
         """
         return self.client.remove_metadata(key)
-        
+
     def load_graphml(self, uri):
         """
         Loads a GraphML file into the database and returns the response.
@@ -116,7 +116,7 @@ class Graph(BaseGraph):
         script = self.client.scripts.get('load_graphml')
         params = dict(uri=uri)
         return self.gremlin.command(script, params)
-        
+
     def get_graphml(self):
         """
         Returns a GraphML file representing the entire database.
@@ -126,7 +126,7 @@ class Graph(BaseGraph):
         """
         script = self.client.scripts.get('save_graphml')
         return self.gremlin.command(script, params=None)
-        
+
     def warm_cache(self):
         """
         Warms the server cache by loading elements into memory.
@@ -143,11 +143,11 @@ class Graph(BaseGraph):
 
         :rtype: Neo4jResult
 
-        .. admonition:: WARNING 
+        .. admonition:: WARNING
 
            This will delete all your data!
 
         """
         script = self.client.scripts.get('clear')
         return self.gremlin.command(script, params=None)
-        
+

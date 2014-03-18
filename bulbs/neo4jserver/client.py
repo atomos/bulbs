@@ -47,7 +47,7 @@ class Neo4jResult(Result):
     :type result: dict
 
     :param config: The graph Config object.
-    :type config: Config 
+    :type config: Config
 
     :ivar raw: The raw result.
     :ivar data: The data in the result.
@@ -73,7 +73,7 @@ class Neo4jResult(Result):
         """
         uri = self.raw.get('self')
         return self._parse_id(uri)
-       
+
     def get_type(self):
         """
         Returns the element's base type, either "vertex" or "edge".
@@ -84,7 +84,7 @@ class Neo4jResult(Result):
         uri = self.get_uri()
         neo4j_type = self._parse_type(uri)
         return self.type_map[neo4j_type]
-        
+
     def get_data(self):
         """
         Returns the element's property map.
@@ -102,7 +102,7 @@ class Neo4jResult(Result):
 
         """
         return self.raw.get('self')
-                 
+
     def get_outV(self):
         """
         Returns the ID of the edge's outgoing vertex (start node).
@@ -112,7 +112,7 @@ class Neo4jResult(Result):
         """
         uri = self.raw.get('start')
         return self._parse_id(uri)
-        
+
     def get_inV(self):
         """
         Returns the ID of the edge's incoming vertex (end node).
@@ -140,7 +140,7 @@ class Neo4jResult(Result):
 
         """
         return self.raw.get('name')
-   
+
     def get_index_class(self):
         """
         Returns the index class, either "vertex" or "edge".
@@ -148,15 +148,15 @@ class Neo4jResult(Result):
         :rtype: str
 
         """
-        uri = self.raw.get('template') 
+        uri = self.raw.get('template')
         neo4j_type = self._parse_index_type(uri)
         return self.type_map[neo4j_type]
 
     def get(self, attribute):
         """
         Returns the value of a client-specific attribute.
-        
-        :param attribute: Name of the attribute. 
+
+        :param attribute: Name of the attribute.
         :type attribute: str
 
         :rtype: str
@@ -166,7 +166,7 @@ class Neo4jResult(Result):
 
     def _get_data(self, result):
         if type(result) is dict:
-            return result.get('data') 
+            return result.get('data')
 
     def _parse_id(self, uri):
         """Parses the ID out of a URI."""
@@ -180,7 +180,7 @@ class Neo4jResult(Result):
             root_uri = uri.rpartition('/')[0]
             neo4j_type = root_uri.rpartition('/')[-1]
             return neo4j_type
-    
+
     def _parse_index_type(self, uri):
         """Parses the type out of an index URI."""
         if uri:
@@ -204,7 +204,7 @@ class Neo4jResponse(Response):
     :ivar headers: httplib2 response headers, see:
         http://httplib2.googlecode.com/hg/doc/html/libhttplib2.html
     :ivar content: A dict containing the HTTP response content.
-    :ivar results: A generator of Neo4jResult objects, a single Neo4jResult object, 
+    :ivar results: A generator of Neo4jResult objects, a single Neo4jResult object,
         or None, depending on the number of results returned.
     :ivar total_size: The number of results returned.
     :ivar raw: Raw HTTP response. Only set when log_level is DEBUG.
@@ -229,7 +229,7 @@ class Neo4jResponse(Response):
     def handle_response(self, response):
         """
         Check the server response and raise exception if needed.
-        
+
         :param response: httplib2 response: (headers, content).
         :type response: tuple
 
@@ -244,7 +244,7 @@ class Neo4jResponse(Response):
         if re.search(b"^\"java.(.*).Exception:", content):
             # raise error...
             server_error(response)
-        
+
         response_handler = RESPONSE_HANDLERS.get(headers.status)
         response_handler(response)
 
@@ -254,7 +254,7 @@ class Neo4jResponse(Response):
 
         :param response: httplib2 response: (headers, content).
         :type response: tuple
-        
+
         :rtype: httplib2.Response
 
         """
@@ -267,10 +267,10 @@ class Neo4jResponse(Response):
     def get_content(self, response):
         """
         Returns a dict containing the content from the response.
-        
+
         :param response: httplib2 response: (headers, content).
         :type response: tuple
-        
+
         :rtype: dict or None
 
         """
@@ -286,8 +286,8 @@ class Neo4jResponse(Response):
         """
         Returns the results contained in the response.
 
-        :return:  A tuple containing two items: 1. Either a generator of Neo4jResult objects, 
-                  a single Neo4jResult object, or None, depending on the number of results 
+        :return:  A tuple containing two items: 1. Either a generator of Neo4jResult objects,
+                  a single Neo4jResult object, or None, depending on the number of results
                   returned; 2. An int representing the number results returned.
         :rtype: tuple
 
@@ -298,7 +298,7 @@ class Neo4jResponse(Response):
         elif self.content and self.content != "null":
             # Checking for self.content.get('data') won't work b/c the data value
             # isn't returned for edges with no properties;
-            # and self.content != "null": Yep, the null thing is sort of a hack. 
+            # and self.content != "null": Yep, the null thing is sort of a hack.
             # Neo4j returns "null" if Gremlin scripts don't return anything.
             results = self.result_class(self.content, self.config)
             total_size = 1
@@ -311,11 +311,11 @@ class Neo4jResponse(Response):
         """Sets the index name to the raw result."""
         # this is pretty much a hack becuase neo4j doesn't include the index name in response
         self.results.raw['name'] = index_name
-        
+
 
 class Neo4jRequest(Request):
-    """Makes HTTP requests to Neo4j Server and returns a Neo4jResponse.""" 
-    
+    """Makes HTTP requests to Neo4j Server and returns a Neo4jResponse."""
+
     response_class = Neo4jResponse
 
 
@@ -328,7 +328,7 @@ class Neo4jClient(Client):
 
     :ivar config: Config object.
     :ivar registry: Registry object.
-    :ivar scripts: GroovyScripts object.  
+    :ivar scripts: GroovyScripts object.
     :ivar type_system: JSONTypeSystem object.
     :ivar request: Neo4jRequest object.
 
@@ -339,7 +339,7 @@ class Neo4jClient(Client):
     >>> response = client.get_all_vertices()
     >>> result = response.results.next()
 
-    """ 
+    """
     #: Default URI for the database.
     default_uri = NEO4J_URI
 
@@ -355,18 +355,18 @@ class Neo4jClient(Client):
 
         # Neo4j supports Gremlin so include the Gremlin-Groovy script library
         self.scripts = GroovyScripts(self.config)
-        
+
         # Also include the Neo4j Server-specific Gremlin-Groovy scripts
         scripts_file = get_file_path(__file__, "gremlin.groovy")
         self.scripts.update(scripts_file)
 
         # Add it to the registry. This allows you to have more than one scripts namespace.
         self.registry.add_scripts("gremlin", self.scripts)
-        
+
 
     # Gremlin
 
-    def gremlin(self, script, params=None): 
+    def gremlin(self, script, params=None):
         """
         Executes a Gremlin script and returns the Response.
 
@@ -439,7 +439,7 @@ class Neo4jClient(Client):
         path = build_path(vertex_path, _id)
         params = None
         return self.request.get(path, params)
-        
+
     def get_all_vertices(self):
         """
         Returns a Response containing all the vertices in the Graph.
@@ -484,13 +484,13 @@ class Neo4jClient(Client):
         script = self.scripts.get("delete_vertex")
         params = dict(_id=_id)
         return self.gremlin(script,params)
-        
+
     # Edge Proxy
 
-    def create_edge(self, outV, label, inV, data=None, keys=None): 
+    def create_edge(self, outV, label, inV, data=None, keys=None):
         """
         Creates a edge and returns the Response.
-        
+
         :param outV: Outgoing vertex ID.
         :type outV: int
 
@@ -528,7 +528,7 @@ class Neo4jClient(Client):
         path = build_path(edge_path,_id)
         params = None
         return self.request.get(path, params)
-        
+
     def get_all_edges(self):
         """
         Returns a Response containing all the edges in the Graph.
@@ -587,7 +587,7 @@ class Neo4jClient(Client):
         :type label: str
 
         :rtype: Neo4jResponse
-        
+
         """
         script = self.scripts.get('outE')
         params = dict(_id=_id,label=label,start=start,limit=limit)
@@ -621,7 +621,7 @@ class Neo4jClient(Client):
         :type label: str
 
         :rtype: Neo4jResponse
-        
+
         """
         script = self.scripts.get('bothE')
         params = dict(_id=_id,label=label,start=start,limit=limit)
@@ -643,7 +643,7 @@ class Neo4jClient(Client):
         script = self.scripts.get('outV')
         params = dict(_id=_id,label=label,start=start,limit=limit)
         return self.gremlin(script,params)
-        
+
     def inV(self, _id, label=None, start=None, limit=None):
         """
         Returns the in-adjacent vertices of the vertex.
@@ -660,7 +660,7 @@ class Neo4jClient(Client):
         script = self.scripts.get('inV')
         params = dict(_id=_id,label=label,start=start,limit=limit)
         return self.gremlin(script,params)
-        
+
     def bothV(self, _id, label=None, start=None, limit=None):
         """
         Returns the incoming- and outgoing-adjacent vertices of the vertex.
@@ -691,11 +691,11 @@ class Neo4jClient(Client):
 
         """
         default_config = {'type': "exact", 'provider': "lucene"}
-        index_config = kwds.pop("index_config", default_config) 
+        index_config = kwds.pop("index_config", default_config)
         path = build_path(index_path, vertex_path)
         params = dict(name=index_name, config=index_config)
         resp = self.request.post(path, params)
-        resp._set_index_name(index_name)        
+        resp._set_index_name(index_name)
         return resp
 
     def get_vertex_indices(self):
@@ -737,11 +737,11 @@ class Neo4jClient(Client):
 
         :rtype: bulbs.neo4jserver.index.Index
 
-        """ 
+        """
         # Neo4j's create index endpoint returns the index if it already exists
         return self.create_vertex_index(index_name, *args, **kwds)
 
-    def delete_vertex_index(self, index_name): 
+    def delete_vertex_index(self, index_name):
         """
         Deletes the vertex index with the index_name.
 
@@ -768,7 +768,7 @@ class Neo4jClient(Client):
 
         """
         default_config = {'type': "exact", 'provider': "lucene"}
-        index_config = kwds.pop("index_config", default_config) 
+        index_config = kwds.pop("index_config", default_config)
         path = build_path(index_path, edge_path)
         params = dict(name=index_name, config=index_config)
         resp = self.request.post(path, params)
@@ -814,7 +814,7 @@ class Neo4jClient(Client):
 
         :rtype: bulbs.neo4jserver.index.Index
 
-        """ 
+        """
         # Neo4j's create index endpoint returns the index if it already exists
         return self.create_edge_index(index_name, *args, **kwds)
 
@@ -849,7 +849,7 @@ class Neo4jClient(Client):
 
         :param _id: Vertex ID
         :type _id: int
-        
+
         :rtype: Neo4jResponse
 
         """
@@ -875,9 +875,12 @@ class Neo4jClient(Client):
 
         """
         # converting all values to strings because that's how they're stored
-        path = build_path(index_path, vertex_path, index_name, key, value)
-        params = None
-        return self.request.get(path, params)
+        from bulbs.neo4jserver import Graph
+        g = Graph()
+        print index_name, key, value
+        result = self.cypher("match (n:%s{%s:%s}) return n" % (index_name, key, value))
+        print result
+        return result
 
     def create_unique_vertex(self, index_name, key, value, data=None):
         """
@@ -905,7 +908,7 @@ class Neo4jClient(Client):
                 '?uniqueness=get_or_create')
         params = {'key': key, 'value': value, 'properties': data}
         return self.request.post(path, params)
-        
+
     def query_vertex(self, index_name, query):
         """
         Queries the index and returns the Response.
@@ -934,15 +937,16 @@ class Neo4jClient(Client):
         :type key: str
 
         :param value: Optional. Value of the key.
-        :type value: str        
+        :type value: str
 
         :rtype: Neo4jResponse
 
         """
         path = build_path(index_path, vertex_path, index_name ,key, value, _id)
         params = None
+        print path, params
         return self.request.delete(path, params)
-        
+
     # Index Container - Edge
 
     def put_edge(self, index_name, key, value, _id):
@@ -960,7 +964,7 @@ class Neo4jClient(Client):
 
         :param _id: Edge ID
         :type _id: int
-        
+
         :rtype: Neo4jResponse
 
         """
@@ -1010,7 +1014,7 @@ class Neo4jClient(Client):
     def remove_edge(self, index_name, _id, key=None, value=None):
         """
         Removes an edge from the index and returns the Response.
-        
+
         :param index_name: Name of the index.
         :type index_name: str
 
@@ -1021,7 +1025,7 @@ class Neo4jClient(Client):
         :type key: str
 
         :param value: Optional. Value of the key.
-        :type value: str        
+        :type value: str
 
         :rtype: Neo4jResponse
 
@@ -1032,7 +1036,7 @@ class Neo4jClient(Client):
 
     # Model Proxy - Vertex
 
-    def create_indexed_vertex(self, data, index_name, keys=None):
+    def create_indexed_vertex(self, data, index_name, keys=None, element_type=None):
         """
         Creates a vertex, indexes it, and returns the Response.
 
@@ -1051,8 +1055,10 @@ class Neo4jClient(Client):
         data = self._remove_null_values(data)
         params = dict(data=data,index_name=index_name,keys=keys)
         script = self.scripts.get("create_indexed_vertex")
-        return self.gremlin(script,params)
-    
+        result = self.gremlin(script,params)
+        print result
+        return result
+
     def update_indexed_vertex(self, _id, data, index_name, keys=None):
         """
         Updates an indexed vertex and returns the Response.
@@ -1150,7 +1156,7 @@ class Neo4jClient(Client):
         :type value: str, int, or list
 
         :rtype: Neo4jResponse
-        
+
         """
         script = self.scripts.get("set_metadata")
         params = dict(key=key, value=value)
@@ -1167,7 +1173,7 @@ class Neo4jClient(Client):
         :type default_value: str, int, or list
 
         :rtype: Neo4jResponse
-        
+
         """
         script = self.scripts.get("get_metadata")
         params = dict(key=key, default_value=default_value)
@@ -1181,14 +1187,14 @@ class Neo4jClient(Client):
         :type key: str
 
         :rtype: Neo4jResponse
-        
+
         """
         script = self.scripts.get("remove_metadata")
         params = dict(key=key)
         return self.gremlin(script, params)
 
 
-    # Private 
+    # Private
 
     def _remove_null_values(self,data):
         """Removes null property values because they aren't valid in Neo4j."""
@@ -1219,16 +1225,16 @@ class Neo4jClient(Client):
     def _build_vertex_path(self,_id,*args):
         # if the _id is a placeholder, return the placeholder;
         # othewise, return a normal vertex path
-        placeholder = self._placeholder(_id) 
+        placeholder = self._placeholder(_id)
         if placeholder:
             segments = [placeholder]
         else:
             segments = [vertex_path,_id]
         segments = segments + list(args)
         return build_path(*segments)
-        
+
     def _build_vertex_uri(self,_id,*args):
-        placeholder = self._placeholder(_id) 
+        placeholder = self._placeholder(_id)
         if placeholder:
             return placeholder
         root_uri = self.config.root_uri.rstrip("/")

@@ -13,19 +13,19 @@ from bulbs.utils import initialize_element, initialize_elements, get_one_result
 class IndexProxy(object):
     """Abstract base class the index proxies."""
 
-    def __init__(self, index_class, client):        
+    def __init__(self, index_class, client):
         # The index class for this proxy, e.g. ExactIndex.
         self.index_class = index_class
 
         # The Client object for the database.
         self.client = client
-    
+
     def _build_index_config(self, index_class):
         assert self.index_class.blueprints_type is not "AUTOMATIC"
         index_config = {'type':self.index_class.index_type,
                         'provider':self.index_class.index_provider}
         return index_config
-    
+
 
 class VertexIndexProxy(IndexProxy):
     """
@@ -49,7 +49,7 @@ class VertexIndexProxy(IndexProxy):
         :type index_name: str
 
         :rtype: bulbs.neo4jserver.index.Index
-        
+
         """
         config = self._build_index_config(self.index_class)
         resp = self.client.create_vertex_index(index_name,index_config=config)
@@ -60,12 +60,12 @@ class VertexIndexProxy(IndexProxy):
     def get(self, index_name):
         """
         Returns the Index object with the specified name or None if not found.
-        
+
         :param index_name: Index name.
         :type index_name: str
 
         :rtype: bulbs.neo4jserver.index.Index
-        
+
         """
         resp = self.client.get_vertex_index(index_name)
         if resp.results:
@@ -82,7 +82,7 @@ class VertexIndexProxy(IndexProxy):
 
         :rtype: bulbs.neo4jserver.index.Index
 
-        """ 
+        """
         config = self._build_index_config(self.index_class)
         resp = self.client.get_or_create_vertex_index(index_name,index_config=config)
         index = self.index_class(self.client, resp.results)
@@ -90,7 +90,7 @@ class VertexIndexProxy(IndexProxy):
         return index
 
     def delete(self, index_name):
-        """ 
+        """
         Deletes an index and returns the Response.
 
         :param index_name: Index name.
@@ -124,7 +124,7 @@ class EdgeIndexProxy(IndexProxy):
         :type index_name: str
 
         :rtype: bulbs.neo4jserver.index.Index
-        
+
         """
         config = self._build_index_config(self.index_class)
         resp = self.client.create_edge_index(index_name,index_config=config)
@@ -135,12 +135,12 @@ class EdgeIndexProxy(IndexProxy):
     def get(self, index_name):
         """
         Returns the Index object with the specified name or None if not found.
-        
+
         :param index_name: Index name.
         :type index_name: str
 
         :rtype: bulbs.neo4jserver.index.Index
-        
+
         """
         resp = self.client.get_edge_index(index_name)
         if resp.results:
@@ -157,7 +157,7 @@ class EdgeIndexProxy(IndexProxy):
 
         :rtype: bulbs.neo4jserver.index.Index
 
-        """ 
+        """
         config = self._build_index_config(self.index_class)
         resp = self.client.get_or_create_edge_index(index_name, index_config=config)
         index = self.index_class(self.client, resp.results)
@@ -165,7 +165,7 @@ class EdgeIndexProxy(IndexProxy):
         return index
 
     def delete(self, index_name):
-        """ 
+        """
         Deletes an index and returns the Response.
 
         :param index_name: Index name.
@@ -191,7 +191,7 @@ class Index(object):
         self.client = client
         self.result = result
 
-    @classmethod 
+    @classmethod
     def get_proxy_class(cls, base_type):
         """
         Returns the IndexProxy class.
@@ -232,7 +232,7 @@ class Index(object):
         :param _id: The element ID.
         :type _id: int or str
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -242,7 +242,7 @@ class Index(object):
         :type pair: name/value pair
 
         :rtype: bulbs.neo4jserver.client.Neo4jResponse
-            
+
         """
         key, value = self._get_key_value(key,value,pair)
         put = self._get_method(vertex="put_vertex", edge="put_edge")
@@ -251,8 +251,8 @@ class Index(object):
     def update(self, _id, key=None, value=None, **pair):
         """
         Update the element ID for the key and value.
-        
-        :param key: The index key. 
+
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -274,7 +274,7 @@ class Index(object):
         """
         Return all the elements in the index where key equals value.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -289,16 +289,21 @@ class Index(object):
         key, value = self._get_key_value(key,value,pair)
         lookup = self._get_method(vertex="lookup_vertex", edge="lookup_edge")
         resp = lookup(self.index_name,key,value)
-        return initialize_elements(self.client, resp)
+        print "response is", resp
+        elements = initialize_elements(self.client, resp)
+        if elements:
+            return list(elements)
+        else:
+            return []
 
     #put_unique = update
     def put_unique(self, _id, key=None, value=None, **pair):
         """
-        Put an element into the index at key/value and overwrite it if an 
+        Put an element into the index at key/value and overwrite it if an
         element already exists; thus, when you do a lookup on that key/value pair,
         there will be a max of 1 element returned.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -318,7 +323,7 @@ class Index(object):
         """
         Returns a max of 1 elements in the index matching the key/value pair.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -370,7 +375,7 @@ class Index(object):
         """
         Remove the element from the index located by key/value.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -384,13 +389,14 @@ class Index(object):
         """
         key, value = self._get_key_value(key, value, pair)
         remove = self._get_method(vertex="remove_vertex", edge="remove_edge")
+        print remove
         return remove(self.index_name,_id,key,value)
 
     def count(self, key=None, value=None, **pair):
         """
         Return the number of items in the index for the key and value.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -413,7 +419,7 @@ class Index(object):
         """
         Returns the key and value, regardless of how it was entered.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param value: The key's value.
@@ -433,7 +439,7 @@ class Index(object):
         """
         Returns the right method, depending on the index class type.
 
-        :param method_map: Dict mapping the index class type to its method name. 
+        :param method_map: Dict mapping the index class type to its method name.
         :type method_map: dict
 
         :rtype: Callable
@@ -452,7 +458,7 @@ class ExactIndex(Index):
     :cvar index_provider: Index provider.
     :cvar blueprints_type: Blueprints type.
 
-    :ivar client: Neo4jClient object 
+    :ivar client: Neo4jClient object
     :ivar result: Neo4jResult object.
 
     """
@@ -464,7 +470,7 @@ class ExactIndex(Index):
         """
         Return all the elements in the index matching the query.
 
-        :param key: The index key. 
+        :param key: The index key.
         :type key: str
 
         :param query_string: The query string. Example: "Jam*".
@@ -477,7 +483,7 @@ class ExactIndex(Index):
         script = self.client.scripts.get('query_exact_index')
         params = dict(index_name=self.index_name, key=key, query_string=query_string)
         resp = self.client.gremlin(script, params)
-        return initialize_elements(self.client, resp)       
+        return initialize_elements(self.client, resp)
 
 # TODO: add fulltext index tests
 class FulltextIndex(Index):
@@ -488,9 +494,9 @@ class FulltextIndex(Index):
     :cvar index_provider: Index provider.
     :cvar blueprints_type: Blueprints type.
 
-    :ivar client: Neo4jClient object 
+    :ivar client: Neo4jClient object
     :ivar result: Neo4jResult object.
-    
+
     """
     index_type = "fulltext"
     index_provider = "lucene"
@@ -502,7 +508,7 @@ class FulltextIndex(Index):
 
         See http://lucene.apache.org/core/3_6_0/queryparsersyntax.html
 
-        :param query_string: The query formatted in the Lucene query language. 
+        :param query_string: The query formatted in the Lucene query language.
         :type query_string: str
 
         :rtype: Element generator

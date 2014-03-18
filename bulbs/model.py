@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 # Copyright 2012 James Thornton (http://jamesthornton.com)
 # BSD License (see LICENSE for details)
 #
@@ -29,11 +29,11 @@ class ModelMeta(type):
     """Metaclass used to set database Property definitions on Models."""
 
     def __init__(cls, name, base, namespace):
-        """Store Property instance definitions on the class as a dictionary.""" 
+        """Store Property instance definitions on the class as a dictionary."""
 
         # Get inherited Properties
         cls._properties = cls._get_initial_properties()
-        
+
         # Add new Properties
         cls._register_properties(namespace)
 
@@ -44,14 +44,14 @@ class ModelMeta(type):
         :rtype: dict
 
         """
-        try: 
+        try:
             parent_properties = getattr(cls, '_properties')
-            properties = parent_properties.copy() 
+            properties = parent_properties.copy()
         except:
-            # Set it to an empty dict if the Model doesn't have a parent Model. 
+            # Set it to an empty dict if the Model doesn't have a parent Model.
             properties = {}
         return properties
-            
+
     def _register_properties(cls, namespace):
         """
         Loop through the class namespace looking for Property instances.
@@ -76,8 +76,8 @@ class ModelMeta(type):
                 cls._set_property_name(key,property_instance)
                 cls._initialize_property(key,property_instance)
                 # not doing this b/c some Properties are calculated at savetime
-                #delattr(cls, key) 
-                            
+                #delattr(cls, key)
+
     def _set_property_name(cls, key, property_instance):
         """
         Set Property name to attribute key unless explicitly set via kwd param.
@@ -108,7 +108,7 @@ class ModelMeta(type):
         if property_instance.fget:
             # TODO: make this configurable
             # this is a calculated property (should it persist?)
-            # wrapped fset and fdel in str() to make the default None not 
+            # wrapped fset and fdel in str() to make the default None not
             # error on getattr
             fget = getattr(cls, property_instance.fget)
             # TODO: implement fset and fdel (maybe)
@@ -124,21 +124,21 @@ class ModelMeta(type):
 
 class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
     """Abstract base class for Node and Relationship container classes."""
-    
 
-    #: The mode for saving attributes to the database. 
+
+    #: The mode for saving attributes to the database.
     #: If set to STRICT, only defined Properties are saved.
-    #: If set to NORMAL, all attributes are saved. 
-    #: Defaults to NORMAL. 
+    #: If set to NORMAL, all attributes are saved.
+    #: Defaults to NORMAL.
     __mode__ = NORMAL
-    
+
     #: A dict containing the database Property instances.
     _properties = None
-    
+
 
     def __setattr__(self, key, value):
         """
-        Set model attributes, possibly coercing database Properties to the 
+        Set model attributes, possibly coercing database Properties to the
         defined types.
 
         :param key: Attribute key
@@ -146,7 +146,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
 
         :param value: Attribute value
         :type value: object
-        
+
         :rtype: None
 
         """
@@ -166,7 +166,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
 
         :param value: Attribute value
         :type value: object
-        
+
         :rtype: None
 
         """
@@ -187,7 +187,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
 
         :param value: Attribute value
         :type value: object
-        
+
         :rtype: None
 
         """
@@ -196,7 +196,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
             object.__setattr__(self, key, value)
         else:
             # Store the attribute in self._data, which are saved to database.
-            Element.__setattr__(self, key, value)        
+            Element.__setattr__(self, key, value)
 
     def _is_calculated_property(self, key):
         """
@@ -221,7 +221,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
 
         :param value: Attribute value
         :type value: object
-        
+
         :rtype: object
 
         """
@@ -238,9 +238,9 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
 
         """
         for key in self._properties:
-            default_value = self._get_property_default(key)     
+            default_value = self._get_property_default(key)
             setattr(self, key, default_value)
-            
+
     def _get_property_default(self, key):
         """
         Coerce database Property value into its defined type.
@@ -253,7 +253,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         """
         # TODO: make this work for model methods?
         # The value entered could be a scalar or a function name
-        # Should we defer the call until all properties are set, 
+        # Should we defer the call until all properties are set,
         # or only for calculated properties?
         property_instance = self._properties[key]
         default_value = property_instance.default
@@ -277,7 +277,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         # NOTE: keys may have been passed in that are not defined as Properties
         data = build_data(_data, kwds)
         for key in data:    # Python 3
-            value = data[key]  
+            value = data[key]
             # Notice that __setattr__ is overloaded
             setattr(self, key, value)
 
@@ -292,7 +292,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         """
         type_system = self._client.type_system
         for key in self._properties:   # Python 3
-            
+
             # Don't set calculted property values, i.e. those with fset defined.
             if self._is_calculated_property(key): continue
 
@@ -304,7 +304,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
             # TODO: Maybe need to wrap this in try/catch too.
             # Notice that __setattr__ is overloaded. No need to coerce it twice.
             object.__setattr__(self, key, value)
-            
+
     def _get_property_data(self):
         """
         Returns validated Property data, ready to be saved in the DB.
@@ -337,7 +337,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
     def _get_initial_data(self):
         """
         Returns empty dict if __mode__ is set to STRICT, otherwise self._data.
-        
+
         :rtype: dict
 
         """
@@ -373,7 +373,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         :rtype: tuple
 
         """
-        self._set_property_defaults()   
+        self._set_property_defaults()
         self._set_keyword_attributes(_data, kwds)
         data = self._get_property_data()
         index_name = self.get_index_name(self._client.config)
@@ -410,7 +410,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         if self.__mode__ == NORMAL:
             data = self._data
 
-        for key in self._properties: 
+        for key in self._properties:
             # TODO: make this work for calculated values.
             # Calculated props shouldn't be stored, but components should be.
             data[key] = object.__getattribute__(self, key)
@@ -429,7 +429,7 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
     def __check__(self,data):
         """
         Override this method in the child class to throw an exception if the data dictionary is invalid
-        
+
         :param data: Collection of parameters to be set for this Model
         :type data: dict
 
@@ -437,12 +437,12 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         pass
 
 class Node(Model, Vertex):
-    """ 
+    """
     Abstract base class used for creating a Vertex Model.
- 
-    It's used to create classes that model domain objects, and it's not meant 
-    to be used directly. To use it, create a subclass specific to the type of 
-    data you are storing. 
+
+    It's used to create classes that model domain objects, and it's not meant
+    to be used directly. To use it, create a subclass specific to the type of
+    data you are storing.
 
     Example model declaration::
 
@@ -453,7 +453,7 @@ class Node(Model, Vertex):
 
         class Person(Node):
             element_type = "person"
-            
+
             name = String(nullable=False)
             age = Integer()
 
@@ -482,14 +482,14 @@ class Node(Model, Vertex):
 
         # Lookup people using the Person model's primary index:
         >>> nodes = g.people.index.lookup(name="James")
-        
+
     """
-    #: The mode for saving attributes to the database. 
+    #: The mode for saving attributes to the database.
     #: If set to STRICT, only defined Properties are saved.
-    #: If set to NORMAL, all attributes are saved. 
-    #: Defaults to NORMAL. 
+    #: If set to NORMAL, all attributes are saved.
+    #: Defaults to NORMAL.
     __mode__ = NORMAL
-    
+
     #: A dict containing the database Property instances.
     _properties = None
 
@@ -522,10 +522,10 @@ class Node(Model, Vertex):
         """
         return cls.get_element_type(config)
 
-    @classmethod 
+    @classmethod
     def get_index_name(cls, config):
         """
-        Returns the index name. 
+        Returns the index name.
 
         :param config: Config object.
         :type config: bulbs.config.Config
@@ -535,10 +535,10 @@ class Node(Model, Vertex):
         """
         return cls.get_element_type(config)
 
-    @classmethod 
+    @classmethod
     def get_proxy_class(cls):
         """
-        Returns the proxy class. 
+        Returns the proxy class.
 
         :param config: Config object.
         :type config: bulbs.config.Config
@@ -561,23 +561,23 @@ class Node(Model, Vertex):
         index_name = self.get_index_name(self._client.config)
         keys = self.get_index_keys()
         self._client.update_indexed_vertex(self._id, data, index_name, keys)
-        
+
     #
     # Override the _create and _update methods to cusomize behavior.
     #
-    
-    def _create(self, _data, kwds):  
+
+    def _create(self, _data, kwds):
         """
         Creates a vertex in the database; called by the NodeProxy create() method.
 
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: None
-        
+
         """
         # bundle is an OrderedDict containing data, index_name, and keys
         data, index_name, keys = self.get_bundle(_data, **kwds)
@@ -585,29 +585,29 @@ class Node(Model, Vertex):
         resp = self._client.create_indexed_vertex(data, index_name, keys)
         result = resp.one()
         self._initialize(result)
-        
+
     def _update(self, _id, _data, kwds):
         """
         Updates a vertex in the database; called by NodeProxy update() method.
-        
+
         :param _id: Element ID.
         :param _id: int or str
 
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: None
-        
+
         """
         data, index_name, keys = self.get_bundle(_data, **kwds)
         self.__check__(data)
         resp = self._client.update_indexed_vertex(_id, data, index_name, keys)
         result = resp.one()
         self._initialize(result)
-        
+
     def _initialize(self, result):
         """
         Initializes the element. Initialize all non-DB attributes here.
@@ -617,7 +617,7 @@ class Node(Model, Vertex):
 
         :rtype: None
 
-        ..note:: Called by _create, _update, and utils.initialize_element. 
+        ..note:: Called by _create, _update, and utils.initialize_element.
 
         """
         Vertex._initialize(self,result)
@@ -627,12 +627,12 @@ class Node(Model, Vertex):
 
 
 class Relationship(Model, Edge):
-    """ 
+    """
     Abstract base class used for creating a Relationship Model.
- 
-    It's used to create classes that model domain objects, and it's not meant 
-    to be used directly. To use it, create a subclass specific to the type of 
-    data you are storing. 
+
+    It's used to create classes that model domain objects, and it's not meant
+    to be used directly. To use it, create a subclass specific to the type of
+    data you are storing.
 
     Example usage for an edge between a blog entry node and its creating user::
 
@@ -700,10 +700,10 @@ class Relationship(Model, Edge):
         """
         return cls.get_label(config)
 
-    @classmethod 
+    @classmethod
     def get_index_name(cls, config):
         """
-        Returns the index name. 
+        Returns the index name.
 
         :param config: Config object.
         :type config: bulbs.config.Config
@@ -713,10 +713,10 @@ class Relationship(Model, Edge):
         """
         return cls.get_label(config)
 
-    @classmethod 
+    @classmethod
     def get_proxy_class(cls):
         """
-        Returns the proxy class. 
+        Returns the proxy class.
 
         :param config: Config object.
         :type config: bulbs.config.Config
@@ -752,11 +752,11 @@ class Relationship(Model, Edge):
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: None
-        
+
         """
         label = self.get_label(self._client.config)
         outV, inV = coerce_vertices(outV, inV)
@@ -765,22 +765,22 @@ class Relationship(Model, Edge):
         resp = self._client.create_indexed_edge(outV, label, inV, data, index_name, keys)
         result = resp.one()
         self._initialize(result)
-        
+
     def _update(self, _id, _data, kwds):
         """
         Updates an edge in DB; called by RelationshipProxy update() method.
-        
+
         :param _id: Element ID.
         :param _id: int or str
 
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: None
-        
+
         """
         data, index_name, keys = self.get_bundle(_data, **kwds)
         self.__check__(data)
@@ -797,7 +797,7 @@ class Relationship(Model, Edge):
 
         :rtype: None
 
-        ..note:: Called by _create, _update, and utils.initialize_element. 
+        ..note:: Called by _create, _update, and utils.initialize_element.
 
         """
         Edge._initialize(self,result)
@@ -815,7 +815,7 @@ class NodeProxy(VertexProxy):
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: Node
@@ -823,8 +823,11 @@ class NodeProxy(VertexProxy):
         """
         node = self.element_class(self.client)
         node._create(_data, kwds)
+        from bulbs.neo4jserver import Graph
+        g = Graph()
+        g.cypher.query("start n=node(%s) set n:%s" % (node._id, node.element_type))
         return node
-        
+
     def update(self, _id, _data=None, **kwds):
         """
         Updates an element in the graph DB and returns it.
@@ -835,12 +838,12 @@ class NodeProxy(VertexProxy):
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: Node
 
-        """ 
+        """
         node = self.element_class(self.client)
         node._update(_id, _data, kwds)
         return node
@@ -848,9 +851,9 @@ class NodeProxy(VertexProxy):
     def get_all(self):
         """
         Returns all the elements for the model type.
-        
+
         :rtype: Node generator
- 
+
         """
 
         config = self.client.config
@@ -872,37 +875,37 @@ class RelationshipProxy(EdgeProxy):
     def create(self, outV, inV, _data=None, **kwds):
         """
         Creates an edge in the database and returns it.
-        
-        :param outV: The outgoing vertex. 
+
+        :param outV: The outgoing vertex.
         :type outV: Vertex or int
-              
-        :param inV: The incoming vertex. 
+
+        :param inV: The incoming vertex.
         :type inV: Vertex or int
 
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: Relationship
 
-        """ 
+        """
         relationship = self.element_class(self.client)
         relationship._create(outV, inV, _data, kwds)
         return relationship
 
     def update(self, _id, _data=None, **kwds):
-        """ 
-        Updates an edge in the database and returns it. 
-        
+        """
+        Updates an edge in the database and returns it.
+
         :param _id: The edge ID.
         :type _id: int or str
 
         :param _data: Optional property data dict.
         :type _data: dict
 
-        :param kwds: Optional property data keyword pairs. 
+        :param kwds: Optional property data keyword pairs.
         :type kwds: dict
 
         :rtype: Relationship
@@ -917,9 +920,9 @@ class RelationshipProxy(EdgeProxy):
         Returns all the relationships for the label.
 
         :rtype: Relationship generator
- 
+
         """
-        # TODO: find a blueprints method that returns all edges for a given 
+        # TODO: find a blueprints method that returns all edges for a given
         # label because you many not want to index edges
         config = self.client.config
         label_var = config.label_var
@@ -935,4 +938,4 @@ class RelationshipProxy(EdgeProxy):
 
         """
         return self.element_class._properties.keys()
-        
+

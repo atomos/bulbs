@@ -18,7 +18,7 @@ import omnijson as json # supports Python 2.5-3.2
 
 
 #
-# Python 3 
+# Python 3
 #
 
 if sys.version < '3':
@@ -29,7 +29,7 @@ if sys.version < '3':
     # def u(x):
     #     return codecs.unicode_escape_decode(x)[0]
 
-                
+
 else:
     # ujson is faster but hasn't been ported to Python 3 yet
 #    import json
@@ -75,6 +75,9 @@ log = get_logger(__name__)
 def initialize_elements(client,response):
     # return None if there were no results; otherwise,
     # return a generator of initialized elements.
+    print response
+    print dir(response)
+    #print response.get_results()
     if response.total_size > 0:
         # yield doesn't work for conditionals
         return (initialize_element(client, result) for result in response.results)
@@ -112,7 +115,7 @@ def get_element_key(client,result):
 
 # Deprecated in favor of resp.one()
 def get_one_result(resp):
-    # If you're using this utility, that means the results attribute in the 
+    # If you're using this utility, that means the results attribute in the
     # Response object should always contain a single result object,
     # not multiple items. But gremlin returns all results as a list
     # even if the list contains only one element. And the Response class
@@ -126,7 +129,7 @@ def get_one_result(resp):
     else:
         result = resp.results
     return result
-    
+
 
 def get_key_value(key, value, pair):
     """Return the key and value, regardless of how it was entered."""
@@ -149,9 +152,9 @@ def build_path(*args):
     return path
 
 def to_bytes(value):
-    # urllib does not handle Unicode at all. 
-    # URLs don't contain non-ASCII characters, by definition. 
-    # When you're dealing with urllib you should use only byte strings. 
+    # urllib does not handle Unicode at all.
+    # URLs don't contain non-ASCII characters, by definition.
+    # When you're dealing with urllib you should use only byte strings.
     # http://stackoverflow.com/a/5605354/161085
     string_value = to_string(value)             # may have been numeric
     unicode_value = u(string_value)             # ensure unicode
@@ -161,7 +164,7 @@ def to_bytes(value):
 def to_string(value):
     # maybe convert a number to a string
     return value if not isinstance(value, numbers.Number) else str(value)
-   
+
 def encode_value(value):
     return value.encode('utf-8') if isinstance(value, str) else value
 
@@ -176,7 +179,7 @@ def encode_dict(d):
         key = to_bytes(key) if is_string(key) else key
         d[key] = to_bytes(val) if is_string(val) else val
     return d
-        
+
 
 
 #
@@ -184,7 +187,7 @@ def encode_dict(d):
 #
 
 def current_timestamp():
-    # Return the unix UTC time 
+    # Return the unix UTC time
     # TODO: should we cast this to an int for consistency?
     return int(time.time())
 
@@ -198,14 +201,14 @@ def current_datetime():
 def current_date():
     #Return  a date object
     return to_date(current_timestamp())
-    
+
 def to_timestamp(datetime):
     # Converts a datetime object to unix UTC time
-    return calendar.timegm(datetime.utctimetuple()) 
+    return calendar.timegm(datetime.utctimetuple())
 
 def to_datestamp(date):
     # Converts a date object to unix UTC time
-    return calendar.timegm(date.timetuple()) 
+    return calendar.timegm(date.timetuple())
 
 def to_datetime(timestamp):
     # Converts unix UTC time into a UTC datetime object
@@ -215,7 +218,7 @@ def to_datetime(timestamp):
 def to_date(timestamp):
     # Converts unix UTC time into a date object
     return datetime.date.fromtimestamp(timestamp)
-    
+
 # Exaplanations on dealing with time...
 
     # http://unix4lyfe.org/time/
@@ -233,15 +236,15 @@ def to_date(timestamp):
 
     # One way (I think dateutils requires this)
     # t = time.time()  # unix utc timestamp
-    # dt = datetime.datetime.utcfromtimestamp(t) 
-    # ut = calendar.timegm(dt.utctimetuple()) 
+    # dt = datetime.datetime.utcfromtimestamp(t)
+    # ut = calendar.timegm(dt.utctimetuple())
 
     # Simpler way?
     # t = time.time()  # unix utc timestamp
     # dt = time.gmtime(t)
     # t = calendar.timegm(dt)
 
-    # Both ways lose subsecond precision going from datetime object to unixtime    
+    # Both ways lose subsecond precision going from datetime object to unixtime
     # t = time.mktime(dt)  # back to unix timestamp # don't use this, this is the inverse of localtime()
 
 
@@ -257,7 +260,7 @@ def extract(desired_keys, bigdict):
 def get_file_path(current_filename, target_filename):
     """
     Returns the full file path for the target file.
-    
+
     """
     current_dir = os.path.dirname(current_filename)
     file_path = os.path.normpath(os.path.join(current_dir, target_filename))
