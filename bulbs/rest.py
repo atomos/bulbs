@@ -28,7 +28,7 @@ def ok(http_resp):
 
 def created(http_resp):
     return
-    
+
 def no_content(http_resp):
     return
 
@@ -78,13 +78,13 @@ class Request(object):
         if config.timeout is not None:
             self.http = httplib2.Http(timeout=int(config.timeout))
         else:
-            self.http = httplib2.Http()    
+            self.http = httplib2.Http()
         self._add_credentials(config.username, config.password)
         self._initialize()
 
     def _initialize(self):
         pass
-    
+
     def get(self, path, params=None):
         """
         Convenience method that sends GET requests to the client.
@@ -97,7 +97,7 @@ class Request(object):
 
         :rtype: Response
 
-        """ 
+        """
         return self.request(GET, path, params)
 
     def put(self, path, params=None):
@@ -144,7 +144,7 @@ class Request(object):
 
         """
         return self.request(DELETE, path, params)
-    
+
     def send(self, message):
         """
         Convenience method that sends request messages to the client.
@@ -189,7 +189,7 @@ class Request(object):
     def _display_debug(self, uri, method, body):
         log.debug("%s url:  %s  ", method, uri)
         log.debug("%s body: %s ", method, body)
-                    
+
     def _build_request_args(self, path, method, params):
         headers = {'Accept': 'application/json',
                    'User-Agent': self.user_agent}
@@ -200,14 +200,14 @@ class Request(object):
         if params and method is GET:
             params = encode_dict(params)
             uri = "%s?%s" % (uri, urlencode(params))
-        
+
         if params and (method in [PUT, POST, DELETE]):
             #params = encode_dict(params)
             body = json.dumps(params)
             post_headers = {'Content-Type': self.content_type}
             headers.update(post_headers)
-        
-        return uri, method, body, headers 
+
+        return uri, method, body, headers
 
     def _add_credentials(self, username, password):
         if username and password:

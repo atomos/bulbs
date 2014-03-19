@@ -14,18 +14,18 @@ from bulbs.base.index import Index
 
 
 # A framework is an understanding of how things could fit together.
-# When designing these things, it's important to remember that your 
+# When designing these things, it's important to remember that your
 # understanding is incomplete.
 
 # Bulbs is written as a series of layers, designed from the bottom up.
 
 class Graph(object):
     """
-    Abstract base class for the server-specific Graph implementations. 
+    Abstract base class for the server-specific Graph implementations.
 
     :param config: Optional Config object. Defaults to the default config.
     :type config: Config
-        
+
     :cvar client_class: Client class.
     :cvar default_index: Default index class.
 
@@ -42,7 +42,7 @@ class Graph(object):
     >>> julie = g.vertices.create(name="Julie")
     >>> g.edges.create(james, "knows", julie)
 
-    """    
+    """
     # The Client class to use for this Graph.
     client_class = Client
 
@@ -70,7 +70,7 @@ class Graph(object):
         if resp.total_size > 0:
             vertices = initialize_elements(self.client, resp)
             return list(vertices)
-   
+
     @property
     def E(self):
         """
@@ -83,7 +83,7 @@ class Graph(object):
         if resp.total_size > 0:
             edges = initialize_elements(self.client, resp)
             return list(edges)
-        
+
     def add_proxy(self, proxy_name, element_class, index_class=None):
         """
         Adds an element proxy to the Graph object for the element class.
@@ -94,7 +94,7 @@ class Graph(object):
         :param element_class: Element class managed by this proxy.
         :type element_class: Element
 
-        :param index_class: Index class for Element's primary index. 
+        :param index_class: Index class for Element's primary index.
             Defaults to default_index.
         :type index_class: Index
 
@@ -104,7 +104,7 @@ class Graph(object):
         proxy = self.build_proxy(element_class, index_class)
         self.client.registry.add_proxy(proxy_name, proxy)
         setattr(self, proxy_name, proxy)
-    
+
     def build_proxy(self, element_class, index_class=None):
         """
         Returns an element proxy built to specifications.
@@ -112,7 +112,7 @@ class Graph(object):
         :param element_class: Element class managed by this proxy.
         :type element_class: Element
 
-        :param index_class: Optional Index class for Element's primary index. 
+        :param index_class: Optional Index class for Element's primary index.
             Defaults to default_index.
         :type index_class: Index
 
@@ -134,7 +134,7 @@ class Graph(object):
 
         """
         raise NotImplementedError
-        
+
     def get_graphml(self):
         """
         Returns a GraphML file representing the entire database.
@@ -158,7 +158,7 @@ class Graph(object):
 
         :rtype: Response
 
-        .. admonition:: WARNING 
+        .. admonition:: WARNING
 
            This will delete all your data!
 

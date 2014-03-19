@@ -32,8 +32,8 @@ class Config(object):
     :ivar type_var: Name of the type variable. Defaults to "element_type".
     :ivar label_var: Name of the label variable. Defaults to "label".
     :ivar type_system: Name of the type system. Defaults to "json".
-    :ivar vertex_index: Name of the vertex index. Defaults to "vertex". 
-    :ivar edge_index: Name of the edge index. Defaults to "edge". 
+    :ivar vertex_index: Name of the vertex index. Defaults to "vertex".
+    :ivar edge_index: Name of the edge index. Defaults to "edge".
     :ivar autoindex: Enable auto indexing. Defaults to True.
     :ivar server_scripts: Scripts are defined server side. Defaults to False.
     :ivar timeout: Optional timeout in seconds. Defaults to None
@@ -57,13 +57,13 @@ class Config(object):
         self.id_var = "eid"
         self.type_var = "element_type"
         self.label_var = "label"
-        self.type_system = "json" 
+        self.type_system = "json"
         self.vertex_index = "vertex"
         self.edge_index = "edge"
         self.autoindex = True         # Titan Client sets autoindex to false
         self.server_scripts = False
         self.timeout = timeout
-        
+
         # Set the default log level and log handler
         self.set_logger(self.log_level, self.log_handler)
 
@@ -86,8 +86,8 @@ class Config(object):
         """
         #log = get_logger(__name__)
         bulbs_logger.setLevel(log_level)
-        self.log_level = log_level 
-        
+        self.log_level = log_level
+
         if log_handler is not None:
             # Don't add log handler twice to prevent duplicate output
             self._maybe_add_log_handler(log_handler)
@@ -98,7 +98,7 @@ class Config(object):
 
         :param log_handler: Python log handler.
         :type log_handler: logging.Handler
-        
+
         :rtype: None
 
         """

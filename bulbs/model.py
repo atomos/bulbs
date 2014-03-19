@@ -579,11 +579,18 @@ class Node(Model, Vertex):
         :rtype: None
 
         """
+
+        """
         # bundle is an OrderedDict containing data, index_name, and keys
         data, index_name, keys = self.get_bundle(_data, **kwds)
         self.__check__(data)
         resp = self._client.create_indexed_vertex(data, index_name, keys)
         result = resp.one()
+        """
+
+        param_string = ", ".join("%s:%s" % (k, ("\"%s\"" % v) if isinstance(v, (str, unicode)) else v) for k, v in kwds.iteritems())
+        query = "CREATE (n:%s {%s}) return n" % (self.__class__.__name__, param_string)
+        result = self._client.cypher(query).one()
         self._initialize(result)
 
     def _update(self, _id, _data, kwds):
@@ -823,7 +830,6 @@ class NodeProxy(VertexProxy):
         """
         node = self.element_class(self.client)
         node._create(_data, kwds)
-        self.client.cypher("start n=node(%s) set n:%s" % (node._id, node.element_type))
         return node
 
     def update(self, _id, _data=None, **kwds):
