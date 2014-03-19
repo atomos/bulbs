@@ -823,9 +823,7 @@ class NodeProxy(VertexProxy):
         """
         node = self.element_class(self.client)
         node._create(_data, kwds)
-        from bulbs.neo4jserver import Graph
-        g = Graph()
-        g.cypher.query("start n=node(%s) set n:%s" % (node._id, node.element_type))
+        self.client.cypher("start n=node(%s) set n:%s" % (node._id, node.element_type))
         return node
 
     def update(self, _id, _data=None, **kwds):

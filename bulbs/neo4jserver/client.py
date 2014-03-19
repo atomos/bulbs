@@ -875,11 +875,7 @@ class Neo4jClient(Client):
 
         """
         # converting all values to strings because that's how they're stored
-        from bulbs.neo4jserver import Graph
-        g = Graph()
-        print index_name, key, value
         result = self.cypher("match (n:%s{%s:%s}) return n" % (index_name, key, value))
-        print result
         return result
 
     def create_unique_vertex(self, index_name, key, value, data=None):
