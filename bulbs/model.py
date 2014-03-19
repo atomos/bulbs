@@ -436,6 +436,9 @@ class Model(six.with_metaclass(ModelMeta, object)):  # Python 3
         """
         pass
 
+    def _dict_to_param_string(self, kwds):
+        return ", ".join("%s:%s" % (k, ("\"%s\"" % v) if isinstance(v, (str, unicode)) else v) for k, v in kwds.iteritems())
+
 class Node(Model, Vertex):
     """
     Abstract base class used for creating a Vertex Model.
@@ -588,7 +591,7 @@ class Node(Model, Vertex):
         result = resp.one()
         """
 
-        param_string = ", ".join("%s:%s" % (k, ("\"%s\"" % v) if isinstance(v, (str, unicode)) else v) for k, v in kwds.iteritems())
+        param_string = self._dict_to_param_string(kwds)
         query = "CREATE (n:%s {%s}) return n" % (self.__class__.__name__, param_string)
         result = self._client.cypher(query).one()
         self._initialize(result)
@@ -767,11 +770,18 @@ class Relationship(Model, Edge):
         """
         label = self.get_label(self._client.config)
         outV, inV = coerce_vertices(outV, inV)
+        """
         data, index_name, keys = self.get_bundle(_data, **kwds)
         self.__check__(data)
         resp = self._client.create_indexed_edge(outV, label, inV, data, index_name, keys)
         result = resp.one()
-        self._initialize(result)
+        """
+        query = "start n1 = node(%s), n2 = node(%s) create n1-[e:%s]->n2 return e" % (
+            outV, inV, label)
+
+        result = self._client.cypher(query)
+        self._initialize(result.one())
+
 
     def _update(self, _id, _data, kwds):
         """

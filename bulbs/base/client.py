@@ -5,8 +5,8 @@
 #
 """
 
-Bulbs supports pluggable backends. These are the abstract base classes that 
-provides the server-client interface. Implement these to create a new client. 
+Bulbs supports pluggable backends. These are the abstract base classes that
+provides the server-client interface. Implement these to create a new client.
 
 """
 import inspect
@@ -21,7 +21,7 @@ SERVER_URI = "http://localhost"
 
 log = get_logger(__name__)
 
-# TODO: Consider making these real Python Abstract Base Classes (import abc)            
+# TODO: Consider making these real Python Abstract Base Classes (import abc)
 
 class Request(object):
 
@@ -41,13 +41,13 @@ class Request(object):
 
 class Result(object):
     """
-    Abstract base class for a single result, not a list of results.  
+    Abstract base class for a single result, not a list of results.
 
     :param result: The raw result.
     :type result: dict
 
     :param config: The graph Config object.
-    :type config: Config 
+    :type config: Config
 
     :ivar raw: The raw result.
     :ivar data: The data in the result.
@@ -59,7 +59,7 @@ class Result(object):
 
         # The raw result.
         self.raw = result
-        
+
         # The data in the result.
         self.data = None
 
@@ -71,7 +71,7 @@ class Result(object):
 
         """
         raise NotImplementedError
-    
+
     def get_type(self):
         """
         Returns the element's base type, either "vertex" or "edge".
@@ -134,7 +134,7 @@ class Result(object):
 
         """
         raise NotImplementedError
-   
+
     def get_index_class(self):
         """
         Returns the index class, either "vertex" or "edge".
@@ -160,7 +160,7 @@ class Result(object):
 class Response(object):
     """
     Abstract base class for the response returned by the request.
-    
+
     :param response: The raw response.
     :type response: Depends on Client.
 
@@ -170,7 +170,7 @@ class Response(object):
     :ivar config: Config object.
     :ivar headers: Response headers.
     :ivar content: A dict containing the response content.
-    :ivar results: A generator of Neo4jResult objects, a single Neo4jResult object, 
+    :ivar results: A generator of Neo4jResult objects, a single Neo4jResult object,
         or None, depending on the number of results returned.
     :ivar total_size: The number of results returned.
     :ivar raw: Raw HTTP response. Only set when log_level is DEBUG.
@@ -195,7 +195,7 @@ class Response(object):
     def handle_response(self, response):
         """
         Check the server response and raise exception if needed.
-        
+
         :param response: Raw server response.
         :type response: Depends on Client.
 
@@ -210,7 +210,7 @@ class Response(object):
 
         :param response: Raw server response.
         :type response: tuple
-        
+
         :rtype: httplib2.Response
 
         """
@@ -219,10 +219,10 @@ class Response(object):
     def get_content(self, response):
         """
         Returns a dict containing the content from the response.
-        
+
         :param response: Raw server response.
         :type response: tuple
-        
+
         :rtype: dict or None
 
         """
@@ -232,8 +232,8 @@ class Response(object):
         """
         Returns the results contained in the response.
 
-        :return:  A tuple containing two items: 1. Either a generator of Neo4jResult objects, 
-                  a single Neo4jResult object, or None, depending on the number of results 
+        :return:  A tuple containing two items: 1. Either a generator of Neo4jResult objects,
+                  a single Neo4jResult object, or None, depending on the number of results
                   returned; 2. An int representing the number results returned.
         :rtype: tuple
 
@@ -251,7 +251,7 @@ class Response(object):
         :rtype: Result
 
         """
-        # If you're using this utility, that means the results attribute in the 
+        # If you're using this utility, that means the results attribute in the
         # Response object should always contain a single result object,
         # not multiple items. But gremlin returns all results as a list
         # even if the list contains only one element. And the Response class
@@ -265,7 +265,7 @@ class Response(object):
         else:
             result = self.results
         return result
-        
+
 
 class Client(object):
     """
@@ -315,7 +315,7 @@ class Client(object):
 
         """
         raise NotImplementedError
-    
+
     def get_vertex(self, _id):
         """
         Gets the vertex with the _id and returns the Response.
@@ -326,7 +326,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def get_all_vertices(self):
         """
@@ -335,7 +335,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def update_vertex(self, _id, data):
         """
@@ -350,7 +350,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def delete_vertex(self, _id):
         """
@@ -362,14 +362,14 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Edge Proxy
 
     def create_edge(self, outV, label, inV, data=None):
         """
         Creates a edge and returns the Response.
-        
+
         :param outV: Outgoing vertex ID.
         :type outV: int
 
@@ -385,7 +385,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def get_edge(self, _id):
         """
@@ -397,7 +397,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def get_all_edges(self):
         """
@@ -406,7 +406,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def update_edge(self, _id, data):
         """
@@ -421,7 +421,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def delete_edge(self, _id):
         """
@@ -433,7 +433,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Vertex Container
 
@@ -448,9 +448,9 @@ class Client(object):
         :type label: str
 
         :rtype: Response
-        
+
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def inE(self, _id, label=None):
         """
@@ -465,7 +465,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def bothE(self, _id, label=None):
         """
@@ -478,9 +478,9 @@ class Client(object):
         :type label: str
 
         :rtype: Response
-        
+
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def outV(self, _id, label=None):
         """
@@ -495,7 +495,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def inV(self, _id, label=None):
         """
@@ -510,7 +510,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def bothV(self, _id, label=None):
         """
@@ -525,7 +525,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Index Proxy - Vertex
 
@@ -539,7 +539,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def get_vertex_index(self, index_name):
         """
@@ -551,9 +551,9 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
-        
-    def delete_vertex_index(self, index_name): 
+        raise NotImplementedError
+
+    def delete_vertex_index(self, index_name):
         """
         Deletes the vertex index with the index_name.
 
@@ -563,7 +563,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Index Proxy - Edge
 
@@ -577,7 +577,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def get_edge_index(self, index_name):
         """
@@ -589,9 +589,9 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
-        
-    def delete_edge_index(self, index_name): 
+        raise NotImplementedError
+
+    def delete_edge_index(self, index_name):
         """
         Deletes the edge index with the index_name.
 
@@ -601,8 +601,8 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
-    
+        raise NotImplementedError
+
     # Index Container - Vertex
 
     def put_vertex(self, index_name, key, value, _id):
@@ -620,11 +620,11 @@ class Client(object):
 
         :param _id: Vertex ID
         :type _id: int
-        
+
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def lookup_vertex(self, index_name, key, value):
         """
@@ -642,7 +642,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def remove_vertex(self, index_name, _id, key=None, value=None):
         """
@@ -655,12 +655,12 @@ class Client(object):
         :type key: str
 
         :param value: Optional. Value of the key.
-        :type value: str        
+        :type value: str
 
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Index Container - Edge
 
@@ -679,11 +679,11 @@ class Client(object):
 
         :param _id: Edge ID
         :type _id: int
-        
+
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def lookup_edge(self, index_name, key, value):
         """
@@ -701,12 +701,12 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def remove_edge(self, index_name, _id, key=None, value=None):
         """
         Removes an edge from the index and returns the Response.
-        
+
         :param index_name: Name of the index.
         :type index_name: str
 
@@ -717,12 +717,12 @@ class Client(object):
         :type key: str
 
         :param value: Optional. Value of the key.
-        :type value: str        
+        :type value: str
 
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Model Proxy - Vertex
 
@@ -742,7 +742,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def update_indexed_vertex(self, _id, data, index_name, keys=None):
         """
@@ -763,7 +763,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     # Model Proxy - Edge
 
@@ -792,7 +792,7 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def update_indexed_edge(self, _id, data, index_name, keys=None):
         """
@@ -813,6 +813,6 @@ class Client(object):
         :rtype: Response
 
         """
-        raise NotImplementedError 
-    
-        
+        raise NotImplementedError
+
+
