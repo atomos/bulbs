@@ -289,7 +289,6 @@ class Index(object):
         key, value = self._get_key_value(key,value,pair)
         lookup = self._get_method(vertex="lookup_vertex", edge="lookup_edge")
         resp = lookup(self.index_name,key,value)
-        print "response is", resp
         elements = initialize_elements(self.client, resp)
         if elements:
             return list(elements)
