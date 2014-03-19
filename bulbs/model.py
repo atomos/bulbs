@@ -776,8 +776,9 @@ class Relationship(Model, Edge):
         resp = self._client.create_indexed_edge(outV, label, inV, data, index_name, keys)
         result = resp.one()
         """
-        query = "start n1 = node(%s), n2 = node(%s) create n1-[e:%s]->n2 return e" % (
-            outV, inV, label)
+        param_string = self._dict_to_param_string(kwds)
+        query = "start n1 = node(%s), n2 = node(%s) create n1-[e:%s{%s}]->n2 return e" % (
+            outV, inV, label, param_string)
 
         result = self._client.cypher(query)
         self._initialize(result.one())
