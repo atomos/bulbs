@@ -72,22 +72,22 @@ log = get_logger(__name__)
 #
 
 
-def initialize_elements(client,response):
+def initialize_elements(client,response, element_type=None):
     # return None if there were no results; otherwise,
     # return a generator of initialized elements.
     if response.total_size > 0:
         # yield doesn't work for conditionals
-        return (initialize_element(client, result) for result in response.results)
+        return (initialize_element(client, result, element_type=element_type) for result in response.results)
 
-def initialize_element(client,result):
+def initialize_element(client,result, element_type=None):
     # result should be a single Result object, not a list or generator
-    element_class = get_element_class(client,result)
+    element_class = get_element_class(client,result,element_type=element_type)
     element = element_class(client)
     element._initialize(result)
     return element
 
-def get_element_class(client,result):
-    element_key = get_element_key(client,result)
+def get_element_class(client,result,element_type=None):
+    element_key = element_type or get_element_key(client,result)
     element_class = client.registry.get_class(element_key)
     if element_class is None:
         # if element_class is not in registry, return the generic Vertex/Edge class

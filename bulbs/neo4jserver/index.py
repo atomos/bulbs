@@ -289,7 +289,7 @@ class Index(object):
         key, value = self._get_key_value(key,value,pair)
         lookup = self._get_method(vertex="lookup_vertex", edge="lookup_edge")
         resp = lookup(self.index_name,key,value)
-        elements = initialize_elements(self.client, resp)
+        elements = initialize_elements(self.client, resp, element_type=self.index_name)
         if elements:
             return list(elements)
         else:
@@ -388,7 +388,6 @@ class Index(object):
         """
         key, value = self._get_key_value(key, value, pair)
         remove = self._get_method(vertex="remove_vertex", edge="remove_edge")
-        print remove
         return remove(self.index_name,_id,key,value)
 
     def count(self, key=None, value=None, **pair):
