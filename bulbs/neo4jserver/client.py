@@ -940,7 +940,6 @@ class Neo4jClient(Client):
         """
         path = build_path(index_path, vertex_path, index_name ,key, value, _id)
         params = None
-        print path, params
         return self.request.delete(path, params)
 
     # Index Container - Edge
@@ -1052,7 +1051,6 @@ class Neo4jClient(Client):
         params = dict(data=data,index_name=index_name,keys=keys)
         script = self.scripts.get("create_indexed_vertex")
         result = self.gremlin(script,params)
-        print result
         return result
 
     def update_indexed_vertex(self, _id, data, index_name, keys=None):
