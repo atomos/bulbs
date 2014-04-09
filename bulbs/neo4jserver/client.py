@@ -101,6 +101,10 @@ class Neo4jResult(Result):
         :rtype: str
 
         """
+        raw = self.raw
+        if isinstance(self.raw, unicode):
+            log.error("raw is %s" % self.raw)
+
         return self.raw.get('self')
 
     def get_outV(self):
